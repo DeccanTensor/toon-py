@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deccan-toon"
+version = "0.1.0"
+description = "Battling JSON bloat with Pythonic elegance. A high-efficiency TOON serializer."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [{ name = "Deccan Tensor Labs", email = "saurabhdugdhe18@gmail.com" }]
+keywords = ["toon", "json", "llm", "ai", "serialization"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Deccan-Tensor/toon-py"
