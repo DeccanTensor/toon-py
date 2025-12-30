@@ -1,9 +1,9 @@
 import re
 import json
-from typing import List, Dict, Any
+from typing import Any
 
 
-def loads(toon_str: str) -> List[Dict[str, Any]]:
+def loads(toon_str: str) -> list[dict[str, Any]]:
     """Parses a TOON string back to a list of dicts."""
     if not toon_str or not toon_str.strip():
         return []
