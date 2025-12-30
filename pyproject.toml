@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "deccan-toon"
@@ -8,14 +8,29 @@ version = "0.1.0"
 description = "Battling JSON bloat with Pythonic elegance. A high-efficiency TOON serializer."
 readme = "README.md"
 requires-python = ">=3.8"
-license = { file = "LICENSE" }
+license = "MIT"
 authors = [{ name = "Deccan Tensor Labs", email = "saurabhdugdhe18@gmail.com" }]
 keywords = ["toon", "json", "llm", "ai", "serialization"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = []
 
 [project.urls]
-"Homepage" = "https://github.com/Deccan-Tensor/toon-py"
+Homepage = "https://github.com/Deccan-Tensor/toon-py"
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0"
+ruff = "^0.1.0"
+mypy = "^1.0"
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
