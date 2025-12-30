@@ -2,34 +2,47 @@
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[project]
+[tool.poetry]
 name = "deccan-toon"
 version = "0.2.0"
 description = "Battling JSON bloat with Pythonic elegance. A high-efficiency TOON serializer."
-readme = "README.md"
-requires-python = ">=3.10"
-license = "MIT"
 authors = [
-    { name = "Saurabh Dugdhe", email = "saurabhdugdhe18@gmail.com" },
-    #{ name = "Deccan Tensor Labs", email = "labs@deccantensor.com" },
+    "Saurabh Dugdhe <saurabhdugdhe18@gmail.com>",
+    #"Deccan Tensor Labs <labs@deccantensor.com>",
 ]
-keywords = ["toon", "json", "llm", "ai", "serialization"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/DeccanTensor/toon-py"
+repository = "https://github.com/DeccanTensor/toon-py"
+
+keywords = [
+    "toon",
+    "json",
+    "llm",
+    "ai",
+    "serialization",
+    "agentic-web",
+    "token-optimization",
+]
+
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = []
 
-[project.urls]
-Homepage = "https://github.com/DeccanTensor/toon-py"
-
-[tool.poetry]
+[tool.poetry.dependencies]
+python = "^3.10"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"
 ruff = "^0.14.10"
 mypy = "^1.19.1"
 bandit = "^1.9.2"
+setuptools = "^80.9.0"
 
 [tool.ruff]
 line-length = 88
