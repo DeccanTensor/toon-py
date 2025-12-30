@@ -26,6 +26,7 @@ Homepage = "https://github.com/Deccan-Tensor/toon-py"
 pytest = "^7.0"
 ruff = "^0.1.0"
 mypy = "^1.0"
+bandit = "^1.7"
 
 [tool.ruff]
 line-length = 88
