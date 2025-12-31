@@ -1,0 +1,250 @@
+name: Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  # Fast smoke test - runs first as a gate
+  smoke:
+    name: 🚀 Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --with dev --no-interaction
+
+      - name: Run smoke tests
+        run: poetry run pytest tests/ -m smoke -v --tb=short
+
+  # Parallel test matrix - runs all categories simultaneously
+  test-matrix:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: smoke  # Only run if smoke passes
+    strategy:
+      fail-fast: false  # Don't cancel other jobs if one fails
+      matrix:
+        include:
+          - name: "🔧 Unit Tests"
+            marker: "unit"
+            
+          - name: "📋 Compliance Tests"
+            marker: "compliance"
+            
+          - name: "🔒 Security Tests"
+            marker: "security"
+            
+          - name: "📦 Integration Tests"
+            marker: "integration and not benchmark"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --with dev --no-interaction
+
+      - name: Run tests
+        run: |
+          poetry run pytest tests/ -m "${{ matrix.marker }}" \
+            -v \
+            --tb=short \
+            --junitxml=test-results-${{ matrix.marker }}.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.marker }}
+          path: test-results-*.xml
+          retention-days: 7
+
+  # Benchmark tests - separate job (optional, can be slow)
+  benchmarks:
+    name: ⏱️ Benchmarks
+    runs-on: ubuntu-latest
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --with dev --no-interaction
+
+      - name: Run benchmark tests
+        run: |
+          poetry run pytest tests/ -m benchmark \
+            -v \
+            --tb=short \
+            --junitxml=test-results-benchmark.xml
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-benchmark
+          path: test-results-benchmark.xml
+          retention-days: 7
+
+  # Fuzz tests - separate job (slow, resource intensive)
+  fuzz:
+    name: 🎲 Fuzz Tests
+    runs-on: ubuntu-latest
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --with dev --no-interaction
+
+      - name: Run fuzz tests
+        run: |
+          poetry run pytest tests/ -m fuzz \
+            -v \
+            --tb=short \
+            --junitxml=test-results-fuzz.xml
+        timeout-minutes: 10  # Fuzz tests have a time limit
+
+      - name: Upload fuzz results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-fuzz
+          path: test-results-fuzz.xml
+          retention-days: 7
+
+  # Publish test results as PR comment
+  publish-results:
+    name: 📊 Publish Results
+    runs-on: ubuntu-latest
+    needs: [smoke, test-matrix, benchmarks, fuzz]
+    if: always() && github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results
+          pattern: test-results-*
+          merge-multiple: true
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: test-results/**/*.xml
+          comment_mode: always
+          compare_to_earlier_commit: true
+          check_name: "Test Results"
+          comment_title: "🧪 Test Results"
+
+  # Final status check - aggregates all test results
+  test-status:
+    name: ✅ All Tests
+    runs-on: ubuntu-latest
+    needs: [smoke, test-matrix, benchmarks, fuzz]
+    if: always()
+    steps:
+      - name: Check test results
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          FAILED=0
+          
+          if [ "${{ needs.smoke.result }}" == "success" ]; then
+            echo "✅ **Smoke Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Smoke Tests**: Failed" >> $GITHUB_STEP_SUMMARY
+            FAILED=1
+          fi
+          
+          if [ "${{ needs.test-matrix.result }}" == "success" ]; then
+            echo "✅ **Test Matrix** (Unit, Compliance, Security, Integration): Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Test Matrix**: Failed" >> $GITHUB_STEP_SUMMARY
+            FAILED=1
+          fi
+          
+          if [ "${{ needs.benchmarks.result }}" == "success" ]; then
+            echo "✅ **Benchmarks**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Benchmarks**: Failed" >> $GITHUB_STEP_SUMMARY
+            FAILED=1
+          fi
+          
+          if [ "${{ needs.fuzz.result }}" == "success" ]; then
+            echo "✅ **Fuzz Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Fuzz Tests**: Failed" >> $GITHUB_STEP_SUMMARY
+            FAILED=1
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $FAILED -eq 1 ]; then
+            echo "### ❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "### ✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+          fi
+
