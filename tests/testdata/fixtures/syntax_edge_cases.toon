@@ -1,0 +1,11 @@
+items[10]{case_id,label,payload}:
+  1, syntax_case_1, "delims: [] {} , : \" all together"
+  2, syntax_case_2, "leading and trailing whitespace ->   padded value   ,"
+  3, syntax_case_3, "looks like header: items[2]{id,name}: ,"
+  4, syntax_case_4, "braces and brackets: {not-a-header}[not-a-count],"
+  5, syntax_case_5, "multi-line:\nline2\n\nline4,"
+  6, syntax_case_6, "carriage returns:\r\nwindows\r\nstyle,"
+  7, syntax_case_7, "json-ish: {\"a\": 1, \"b\": [2,3]},"
+  8, syntax_case_8, "comma,colon: are tricky: yes, indeed,"
+  9, syntax_case_9, "edge: empty-but-quoted \"\" with comma,"
+  10, syntax_case_10, "tabs and spaces:\t  keep\tthese ,"
