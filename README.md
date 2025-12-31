@@ -4,7 +4,7 @@
   <a href="https://pypi.org/project/deccan-toon/">
     <img src="https://img.shields.io/pypi/v/deccan-toon?color=orange&label=pypi%20package" alt="PyPI version">
   </a>
-  <img src="https://img.shields.io/pypi/pyversions/deccan-toon" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/spec-TOON%20v3.0-blue" alt="Spec v3.0">
   <img src="https://img.shields.io/github/license/DeccanTensor/toon-py" alt="License">
 </div>
