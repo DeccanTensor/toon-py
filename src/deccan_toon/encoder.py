@@ -3,7 +3,7 @@ import re
 from typing import Any
 
 # Characters that require a string to be quoted per TOON v3.0 spec
-_NEEDS_QUOTING_RE = re.compile(r'[,:\[\]{}"\\"\n\r\t]')
+_NEEDS_QUOTING_RE = re.compile(r'[,:\[\]{}"\\\n\r\t]')
 
 # Patterns that would be misinterpreted as non-string types
 _INT_PATTERN = re.compile(r"^-?\d+$")
