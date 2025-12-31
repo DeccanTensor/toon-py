@@ -65,8 +65,8 @@ def _mixed_schema_arrays_dataset() -> list[dict[str, Any]]:
 
 def _real_world_config_dataset() -> list[dict[str, Any]]:
     """
-    A "real world"-style config inspired by common package.json / extension-manifest patterns
-    and Kubernetes-style deployment configs. Includes:
+    A "real world"-style config inspired by package.json / extension-manifest
+    patterns and Kubernetes-style deployment configs. Includes:
       - URLs
       - Semver ranges like "^1.2.0"
       - Punctuation-heavy description text
@@ -79,7 +79,7 @@ def _real_world_config_dataset() -> list[dict[str, Any]]:
     config: dict[str, Any] = {
         "name": "deccan-toon-stress-config",
         "version": "0.2.0",
-        "description": "Stress config: URLs, semver, punctuation; nested objects/arrays; edge cases.",
+        "description": "Stress config: URLs, semver, punctuation; nested objects.",
         "homepage": "https://github.com/DeccanTensor/toon-py",
         "repository": {"type": "git", "url": "https://github.com/DeccanTensor/toon-py.git"},
         "bugs": {"url": "https://github.com/DeccanTensor/toon-py/issues"},
@@ -105,7 +105,7 @@ def _real_world_config_dataset() -> list[dict[str, Any]]:
                     "toon.maxDepth": {
                         "type": "number",
                         "default": 50,
-                        "description": "Maximum nesting depth before rejecting payloads.",
+                        "description": "Max nesting depth before rejecting.",
                     },
                     "toon.endpoints": {
                         "type": "array",
@@ -153,7 +153,7 @@ def _real_world_config_dataset() -> list[dict[str, Any]]:
             },
         },
         "notes": [
-            "This config intentionally contains deep nesting, lists-of-objects, and mixed types.",
+            "This config contains deep nesting, lists-of-objects, and mixed types.",
             "It should remain valid JSON when re-serialized.",
             "Semver examples: '^1.2.0', '~2.3.4', '>=3.10'.",
         ],

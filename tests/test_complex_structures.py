@@ -85,8 +85,8 @@ def test_polymorphic_rows() -> None:
     assert all(isinstance(row, list) for row in item3["matrix"])
     assert item3["matrix"] == [[1, 2], [3, 4]]
 
-    # Spec check: our current encoder uses union-of-keys and encodes missing fields as null,
-    # so decoded rows will include the field with value None (not omitted).
+    # Spec check: encoder uses union-of-keys and encodes missing fields as null,
+    # so decoded rows include the field with value None (not omitted).
     assert item1.get("meta") is None
     assert item1.get("matrix") is None
     assert item2.get("tags") is None
@@ -114,11 +114,12 @@ def test_large_file_integrity() -> None:
 def test_benchmark_nested_depth_parse_under_500ms() -> None:
     payload = _read_complex_fixture("nested_depth.toon")
 
-    # Warm-up to reduce one-time costs (imports/regex compilation) impacting the measurement.
+    # Warm-up to reduce one-time costs impacting the measurement.
     _ = deccan_toon.loads(payload)
 
     start = time.perf_counter()
     _ = deccan_toon.loads(payload)
     elapsed_ms = (time.perf_counter() - start) * 1000.0
 
-    assert elapsed_ms <= 500.0, f"nested_depth.toon parse took {elapsed_ms:.2f}ms (>500ms)"
+    msg = f"nested_depth.toon parse took {elapsed_ms:.2f}ms (>500ms)"
+    assert elapsed_ms <= 500.0, msg

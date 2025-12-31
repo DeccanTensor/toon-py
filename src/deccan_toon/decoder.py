@@ -1,9 +1,8 @@
-import re
 import json
+import re
 from typing import Any
 
 from .errors import TOONDecodeError
-
 
 _INT_RE = re.compile(r"^-?\d+$")
 
@@ -41,7 +40,8 @@ def _split_row_values(line: str) -> list[str]:
         if ch == "}":
             brace_depth -= 1
             if brace_depth < 0:
-                raise TOONDecodeError("Malformed JSON-like value in row (unbalanced '}')")
+                msg = "Malformed JSON-like value in row (unbalanced '}')"
+                raise TOONDecodeError(msg)
             buf.append(ch)
             continue
         if ch == "[":
@@ -51,7 +51,8 @@ def _split_row_values(line: str) -> list[str]:
         if ch == "]":
             bracket_depth -= 1
             if bracket_depth < 0:
-                raise TOONDecodeError("Malformed JSON-like value in row (unbalanced ']')")
+                msg = "Malformed JSON-like value in row (unbalanced ']')"
+                raise TOONDecodeError(msg)
             buf.append(ch)
             continue
 
@@ -69,7 +70,8 @@ def _split_row_values(line: str) -> list[str]:
     if in_quotes:
         raise TOONDecodeError("Malformed quoted value in row")
     if brace_depth != 0 or bracket_depth != 0:
-        raise TOONDecodeError("Malformed JSON-like value in row (unbalanced brackets/braces)")
+        msg = "Malformed JSON-like value in row (unbalanced brackets/braces)"
+        raise TOONDecodeError(msg)
 
     out.append("".join(buf).strip())
     return out
@@ -100,9 +102,11 @@ def loads(toon_str: str) -> list[dict[str, Any]]:
 
         raw_values = _split_row_values(line)
         if len(raw_values) != len(keys):
-            raise TOONDecodeError(
-                f"Row width mismatch: expected {len(keys)} columns, got {len(raw_values)}"
+            msg = (
+                f"Row width mismatch: expected {len(keys)} columns, "
+                f"got {len(raw_values)}"
             )
+            raise TOONDecodeError(msg)
 
         row_dict = {}
         for i, key in enumerate(keys):

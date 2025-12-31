@@ -21,7 +21,8 @@ def _read_fixture(name: str) -> str:
     path = _fixtures_dir() / name
     if not path.exists():
         pytest.skip(
-            f"Missing fixture {name}. Ensure test fixtures exist under tests/testdata/fixtures/."
+            f"Missing fixture {name}. "
+            "Ensure test fixtures exist under tests/testdata/fixtures/."
         )
     return path.read_text(encoding="utf-8")
 

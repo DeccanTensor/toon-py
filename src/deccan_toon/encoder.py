@@ -7,7 +7,9 @@ _NEEDS_QUOTING_RE = re.compile(r'[,:\[\]{}"\\"\n\r\t]')
 
 # Patterns that would be misinterpreted as non-string types
 _INT_PATTERN = re.compile(r"^-?\d+$")
-_FLOAT_PATTERN = re.compile(r"^-?\d+\.\d+$|^-?\d+[eE][+-]?\d+$|^-?\d+\.\d+[eE][+-]?\d+$")
+_FLOAT_PATTERN = re.compile(
+    r"^-?\d+\.\d+$|^-?\d+[eE][+-]?\d+$|^-?\d+\.\d+[eE][+-]?\d+$"
+)
 _TYPE_LITERALS = frozenset({"true", "false", "null"})
 
 
@@ -76,13 +78,13 @@ def dumps(data: list[dict[str, Any]]) -> str:
             elif isinstance(val, float):
                 s_val = str(val)
             elif isinstance(val, str):
-                # TOON v3.0: Quote strings that contain special chars or look like literals
+                # TOON v3.0: Quote strings with special chars or type-like values
                 if _needs_quoting(val):
                     s_val = json.dumps(val)
                 else:
                     s_val = val
             elif isinstance(val, (dict, list)):
-                # Embed JSON (object/array) directly. Decoder understands nested brackets/braces.
+                # Embed JSON (object/array) directly
                 s_val = json.dumps(val, ensure_ascii=False, separators=(",", ":"))
             else:
                 # Fallback for other types - serialize as JSON string

@@ -7,7 +7,6 @@ sys.path.insert(0, os.path.abspath("src"))
 
 import deccan_toon
 
-
 ALLOWED_ERRORS = (ValueError, getattr(deccan_toon, "TOONDecodeError", ValueError))
 
 
