@@ -6,7 +6,7 @@ import pytest
 
 sys.path.insert(0, os.path.abspath("src"))
 
-import deccan_toon  # noqa: E402
+import deccan_toon
 
 
 def _repo_root() -> Path:
@@ -26,6 +26,7 @@ def _read_fixture(name: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
+@pytest.mark.integration
 def test_fixture_syntax_edge_cases_decodes() -> None:
     payload = _read_fixture("syntax_edge_cases.toon")
     out = deccan_toon.loads(payload)
@@ -33,6 +34,7 @@ def test_fixture_syntax_edge_cases_decodes() -> None:
     assert all("payload" in row for row in out)
 
 
+@pytest.mark.integration
 def test_fixture_unicode_stress_decodes_utf8() -> None:
     payload = _read_fixture("global_text.toon")
     out = deccan_toon.loads(payload)
@@ -43,6 +45,7 @@ def test_fixture_unicode_stress_decodes_utf8() -> None:
     assert any(any("\u0600" <= ch <= "\u06FF" for ch in t) for t in texts)  # Arabic
 
 
+@pytest.mark.integration
 def test_fixture_type_chaos_invariants() -> None:
     payload = _read_fixture("typing_strictness.toon")
     out = deccan_toon.loads(payload)
@@ -62,6 +65,8 @@ def test_fixture_type_chaos_invariants() -> None:
     assert c_types == {str}
 
 
+@pytest.mark.integration
+@pytest.mark.benchmark
 def test_fixture_large_payload_decodes_row_count() -> None:
     payload = _read_fixture("large_payload.toon")
     out = deccan_toon.loads(payload)
@@ -69,5 +74,3 @@ def test_fixture_large_payload_decodes_row_count() -> None:
     # Spot-check required keys exist in every row.
     for row in (out[0], out[len(out) // 2], out[-1]):
         assert {"timestamp", "agent_id", "complexity_score", "memory_usage"} <= set(row)
-
-

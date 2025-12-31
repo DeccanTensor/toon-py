@@ -12,9 +12,10 @@ import pytest
 
 sys.path.insert(0, os.path.abspath("src"))
 
-import deccan_toon  # noqa: E402
+import deccan_toon
 
 
+@pytest.mark.compliance
 class TestTypeInference:
     """TOON v3.0: Type inference for literals must be case-sensitive and strict."""
 
@@ -61,6 +62,7 @@ class TestTypeInference:
         assert result[0]["big"] == pytest.approx(1e20)
 
 
+@pytest.mark.compliance
 class TestAmbiguousStringQuoting:
     """TOON v3.0: Strings that look like literals MUST be quoted."""
 
@@ -129,6 +131,7 @@ class TestAmbiguousStringQuoting:
         assert decoded[0]["empty"] == ""
 
 
+@pytest.mark.compliance
 class TestSpecialCharacterQuoting:
     """TOON v3.0: Strings with special chars must be quoted and escaped."""
 
@@ -206,6 +209,7 @@ class TestSpecialCharacterQuoting:
         assert decoded == data
 
 
+@pytest.mark.compliance
 class TestPlainStrings:
     """TOON v3.0: Safe strings should remain unquoted for readability."""
 
@@ -228,6 +232,7 @@ class TestPlainStrings:
         assert decoded == data
 
 
+@pytest.mark.compliance
 class TestNoCommentSupport:
     """TOON v3.0: Comments are NOT supported - '#' is data."""
 
@@ -245,6 +250,7 @@ class TestNoCommentSupport:
         assert decoded == data
 
 
+@pytest.mark.compliance
 class TestSparseArrays:
     """TOON v3.0: Missing columns should use explicit null."""
 
@@ -260,6 +266,7 @@ class TestSparseArrays:
         assert decoded[1] == {"id": 2, "name": None}
 
 
+@pytest.mark.compliance
 class TestNestedStructures:
     """TOON v3.0: Nested objects and arrays via inline JSON."""
 
@@ -290,6 +297,7 @@ class TestNestedStructures:
         assert decoded == data
 
 
+@pytest.mark.compliance
 class TestHeaderFormat:
     """TOON v3.0: Header format compliance."""
 
@@ -313,6 +321,7 @@ class TestHeaderFormat:
         assert first_line.endswith(":")
 
 
+@pytest.mark.compliance
 class TestRowWidthValidation:
     """TOON v3.0: Row width must match header."""
 
@@ -327,4 +336,3 @@ class TestRowWidthValidation:
         payload = "items[1]{a,b}:\n  1, 2, 3, 4"  # 4 values for 2 columns
         with pytest.raises(deccan_toon.TOONDecodeError):
             deccan_toon.loads(payload)
-

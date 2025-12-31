@@ -8,7 +8,7 @@ import pytest
 
 sys.path.insert(0, os.path.abspath("src"))
 
-import deccan_toon  # noqa: E402
+import deccan_toon
 
 
 def _repo_root() -> Path:
@@ -44,6 +44,7 @@ def _depth_of_nested_chain(node: dict[str, Any]) -> int:
         cur = child[0]
 
 
+@pytest.mark.integration
 def test_recursion_limit() -> None:
     payload = _read_complex_fixture("nested_depth.toon")
     try:
@@ -57,6 +58,7 @@ def test_recursion_limit() -> None:
     assert _depth_of_nested_chain(data[0]) == 50
 
 
+@pytest.mark.integration
 def test_polymorphic_rows() -> None:
     payload = _read_complex_fixture("mixed_schema_arrays.toon")
     data = deccan_toon.loads(payload)
@@ -93,6 +95,7 @@ def test_polymorphic_rows() -> None:
     assert item3.get("meta") is None
 
 
+@pytest.mark.integration
 def test_large_file_integrity() -> None:
     payload = _read_complex_fixture("real_world_config.toon")
 
@@ -106,6 +109,8 @@ def test_large_file_integrity() -> None:
     assert original_data == restored_data
 
 
+@pytest.mark.integration
+@pytest.mark.benchmark
 def test_benchmark_nested_depth_parse_under_500ms() -> None:
     payload = _read_complex_fixture("nested_depth.toon")
 
@@ -117,5 +122,3 @@ def test_benchmark_nested_depth_parse_under_500ms() -> None:
     elapsed_ms = (time.perf_counter() - start) * 1000.0
 
     assert elapsed_ms <= 500.0, f"nested_depth.toon parse took {elapsed_ms:.2f}ms (>500ms)"
-
-

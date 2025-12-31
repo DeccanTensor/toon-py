@@ -7,7 +7,7 @@ from hypothesis import strategies as st
 
 sys.path.insert(0, os.path.abspath("src"))
 
-import deccan_toon  # noqa: E402
+import deccan_toon
 
 
 ALLOWED_ERRORS = (ValueError, getattr(deccan_toon, "TOONDecodeError", ValueError))
@@ -56,6 +56,7 @@ def list_of_dicts_same_keys(draw):
     ]
 
 
+@pytest.mark.fuzz
 @settings(
     max_examples=2000,
     deadline=None,
@@ -65,7 +66,7 @@ def list_of_dicts_same_keys(draw):
 def test_fuzz_no_unhandled_exception(data) -> None:
     try:
         toon = deccan_toon.dumps(data)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         pytest.fail(f"Unhandled exception in dumps: {type(e).__name__}: {e}")
 
     try:
@@ -73,6 +74,5 @@ def test_fuzz_no_unhandled_exception(data) -> None:
     except ALLOWED_ERRORS:
         # Clean failure is acceptable; the key property is "no crash".
         return
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         pytest.fail(f"Unhandled exception in loads: {type(e).__name__}: {e}")
-
