@@ -48,16 +48,20 @@ jobs:
       matrix:
         include:
           - name: "🔧 Unit Tests"
-            marker: "unit"
+            marker: unit
+            artifact: unit
             
           - name: "📋 Compliance Tests"
-            marker: "compliance"
+            marker: compliance
+            artifact: compliance
             
           - name: "🔒 Security Tests"
-            marker: "security"
+            marker: security
+            artifact: security
             
           - name: "📦 Integration Tests"
-            marker: "integration and not benchmark"
+            marker: integration
+            artifact: integration
 
     steps:
       - uses: actions/checkout@v4
@@ -80,16 +84,16 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest tests/ -m "${{ matrix.marker }}" \
+          poetry run pytest tests/ -m '${{ matrix.marker }}' \
             -v \
             --tb=short \
-            --junitxml=test-results-${{ matrix.marker }}.xml
+            --junitxml=test-results-${{ matrix.artifact }}.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ matrix.marker }}
+          name: test-results-${{ matrix.artifact }}
           path: test-results-*.xml
           retention-days: 7
 
