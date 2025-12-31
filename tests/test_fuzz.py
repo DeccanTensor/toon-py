@@ -9,7 +9,10 @@ sys.path.insert(0, os.path.abspath("src"))
 
 import deccan_toon
 
-ALLOWED_ERRORS = (ValueError, getattr(deccan_toon, "TOONDecodeError", ValueError))
+ALLOWED_ERRORS: tuple[type[Exception], ...] = (
+    ValueError,
+    getattr(deccan_toon, "TOONDecodeError", ValueError),
+)
 
 
 def _jsonish_scalars():

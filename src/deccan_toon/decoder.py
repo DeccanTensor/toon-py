@@ -108,11 +108,12 @@ def loads(toon_str: str) -> list[dict[str, Any]]:
             )
             raise TOONDecodeError(msg)
 
-        row_dict = {}
+        row_dict: dict[str, Any] = {}
         for i, key in enumerate(keys):
             val_str = raw_values[i]
 
             # Type conversion
+            val: Any
             if val_str == "null":
                 val = None
             elif val_str == "true":

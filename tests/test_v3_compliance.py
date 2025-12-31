@@ -256,11 +256,11 @@ class TestSparseArrays:
 
     def test_missing_key_becomes_null(self) -> None:
         """Rows missing a key should encode that column as null."""
-        data = [
+        data: list[dict[str, object]] = [
             {"id": 1, "name": "Alice"},
             {"id": 2},  # missing 'name'
         ]
-        encoded = deccan_toon.dumps(data)
+        encoded = deccan_toon.dumps(data)  # type: ignore[arg-type]
         decoded = deccan_toon.loads(encoded)
         assert decoded[0] == {"id": 1, "name": "Alice"}
         assert decoded[1] == {"id": 2, "name": None}
