@@ -40,20 +40,23 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -o pipefail
           # ruff supports rdjson output natively
-          poetry run ruff check --output-format=rdjson . | reviewdog -f=rdjson -name="ruff" -reporter=github-pr-check -filter-mode=added -level=warning -fail-on-error=false
+          poetry run ruff check --output-format=rdjson . | reviewdog -f=rdjson -name="ruff" -reporter=github-pr-check -filter-mode=added -level=error -fail-on-error=true
 
       - name: Run mypy
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -o pipefail
           # mypy output piped to reviewdog -f=mypy
           # "|| true" prevents the step from failing if mypy finds errors, letting reviewdog handle reporting
-          poetry run mypy . | reviewdog -f=mypy -name="mypy" -reporter=github-pr-check -filter-mode=added -level=warning -fail-on-error=false
+          poetry run mypy . | reviewdog -f=mypy -name="mypy" -reporter=github-pr-check -filter-mode=added -level=error -fail-on-error=true
 
       - name: Run Bandit
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -o pipefail
           # bandit -f json piped to reviewdog -f=bandit
-          poetry run bandit -r -f json . | reviewdog -f=bandit -name="bandit" -reporter=github-pr-check -filter-mode=added -level=warning -fail-on-error=false
+          poetry run bandit -r -f json . | reviewdog -f=bandit -name="bandit" -reporter=github-pr-check -filter-mode=added -fail-on-error=true
