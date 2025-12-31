@@ -45,6 +45,17 @@ mypy = "^1.19.1"
 bandit = "^1.9.2"
 setuptools = "^80.9.0"
 
+[tool.pytest.ini_options]
+markers = [
+    "smoke: Quick sanity checks for CI gating (fast, no deps)",
+    "unit: Core encoder/decoder unit tests",
+    "compliance: TOON v3.0 specification compliance tests",
+    "security: Security and attack vector tests",
+    "fuzz: Property-based fuzz tests (requires hypothesis, slow)",
+    "integration: Tests using fixture files from disk",
+    "benchmark: Performance regression tests (may be slow)",
+]
+
 [tool.ruff]
 line-length = 88
 target-version = "py310"
