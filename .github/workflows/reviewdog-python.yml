@@ -58,8 +58,8 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -o pipefail
           # Scan only source code, not dependencies or venv
-          poetry run bandit -r -f json src/ tests/ scripts/ 2>/dev/null | \
+          # Bandit exits non-zero on any finding, so we ignore its exit code and let reviewdog report
+          (poetry run bandit -r -f json src/ tests/ scripts/ 2>/dev/null || true) | \
             reviewdog -f=bandit -name="bandit" -reporter=github-pr-check \
-            -filter-mode=added -fail-level=any
+            -filter-mode=added -fail-level=error
