@@ -40,20 +40,26 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # ruff supports rdjson output natively
-          poetry run ruff check --output-format=rdjson . | reviewdog -f=rdjson -name="ruff" -reporter=github-pr-check -filter-mode=added -level=warning -fail-on-error=false
+          set -o pipefail
+          poetry run ruff check --output-format=rdjson . | \
+            reviewdog -f=rdjson -name="ruff" -reporter=github-pr-check \
+            -filter-mode=added -level=error -fail-level=any
 
       - name: Run mypy
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # mypy output piped to reviewdog -f=mypy
-          # "|| true" prevents the step from failing if mypy finds errors, letting reviewdog handle reporting
-          poetry run mypy . | reviewdog -f=mypy -name="mypy" -reporter=github-pr-check -filter-mode=added -level=warning -fail-on-error=false
+          set -o pipefail
+          poetry run mypy . | \
+            reviewdog -f=mypy -name="mypy" -reporter=github-pr-check \
+            -filter-mode=added -level=error -fail-level=any
 
       - name: Run Bandit
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # bandit -f json piped to reviewdog -f=bandit
-          poetry run bandit -r -f json . | reviewdog -f=bandit -name="bandit" -reporter=github-pr-check -filter-mode=added -level=warning -fail-on-error=false
+          # Scan only source code, not dependencies or venv
+          # Bandit exits non-zero on any finding, so we ignore its exit code and let reviewdog report
+          (poetry run bandit -r -f json src/ tests/ scripts/ 2>/dev/null || true) | \
+            reviewdog -f=bandit -name="bandit" -reporter=github-pr-check \
+            -filter-mode=added -fail-level=error

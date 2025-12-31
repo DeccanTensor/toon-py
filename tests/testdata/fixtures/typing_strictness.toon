@@ -1,0 +1,9 @@
+items[8]{A,B,C}:
+  1, true, "{\"row\":0,\"event_id\":\"2f9843b1-d7c2-470b-83f3-64e74eb7ad6a\",\"flags\":[true,false,null],\"meta\":{\"alpha\":0.49261047960030313,\"tag\":\"nested-json\"}}"
+  1.5, null, "{\"row\":1,\"event_id\":\"a8e32fa7-bb38-46c7-a5a7-8e3c3506bd2b\",\"flags\":[true,false,null],\"meta\":{\"alpha\":0.10956620303673603,\"tag\":\"nested-json\"}}"
+  2, false, "{\"row\":2,\"event_id\":\"4922420e-3038-4254-ab20-650901406787\",\"flags\":[true,false,null],\"meta\":{\"alpha\":0.7413598615952144,\"tag\":\"nested-json\"}}"
+  2.0, null, "{\"row\":3,\"event_id\":\"b198a468-b07b-43aa-9c3a-3f9dfc744d94\",\"flags\":[true,false,null],\"meta\":{\"alpha\":0.9147515063133969,\"tag\":\"nested-json\"}}"
+  -3, true, "{\"row\":4,\"event_id\":\"23cd03ca-cce2-4cc0-bba0-da20f696311c\",\"flags\":[true,false,null],\"meta\":{\"alpha\":0.1298724413043134,\"tag\":\"nested-json\"}}"
+  -3.25, true, "{\"row\":5,\"event_id\":\"68121b0b-76d9-4c30-8d03-f1abc925c581\",\"flags\":[true,false,null],\"meta\":{\"alpha\":0.1726304821438377,\"tag\":\"nested-json\"}}"
+  100000000000000000000, null, "{\"row\":6,\"event_id\":\"4cbf044b-d6f4-434e-822a-c2e16c318242\",\"flags\":[true,false,null],\"meta\":{\"alpha\":0.0915195181086439,\"tag\":\"nested-json\"}}"
+  1e+20, false, "{\"row\":7,\"event_id\":\"2b27afa5-5806-4927-9367-41b38d8d9eda\",\"flags\":[true,false,null],\"meta\":{\"alpha\":0.0557589018841248,\"tag\":\"nested-json\"}}"
