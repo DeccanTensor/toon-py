@@ -36,7 +36,15 @@ jobs:
         run: poetry install --with dev --no-interaction
 
       - name: Run smoke tests
-        run: poetry run pytest tests/ -m smoke -v --tb=short
+        run: poetry run pytest tests/ -m smoke -v --tb=short --junitxml=test-results-smoke.xml
+
+      - name: Upload smoke results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-smoke
+          path: test-results-smoke.xml
+          retention-days: 7
 
   # Parallel test matrix - runs all categories simultaneously
   test-matrix:
@@ -192,14 +200,131 @@ jobs:
           pattern: test-results-*
           merge-multiple: true
 
-      - name: Publish Test Results
+      - name: Generate Summary Markdown
+        id: generate-summary
+        run: |
+          cat << 'EOF' > generate_summary.py
+          import glob
+          import xml.etree.ElementTree as ET
+          import os
+
+          # Configuration
+          categories = [
+              ("🚀 Smoke Test", "smoke"),
+              ("🔧 Unit Tests", "unit"),
+              ("📋 Compliance Tests", "compliance"),
+              ("🔒 Security Tests", "security"),
+              ("📦 Integration Tests", "integration"),
+              ("⏱️ Benchmarks", "benchmark"),
+              ("🎲 Fuzz Tests", "fuzz")
+          ]
+
+          summary_lines = []
+          summary_lines.append("### 🧪 Test Results Overview")
+          summary_lines.append("")
+          summary_lines.append("| Status | Category | Tests | Time |")
+          summary_lines.append("| :---: | :--- | :---: | :---: |")
+
+          all_passed = True
+          
+          for name, key in categories:
+              file_pattern = f"test-results/test-results-{key}.xml"
+              files = glob.glob(file_pattern)
+              
+              if not files:
+                  summary_lines.append(f"| ⚪ | {name} | N/A | - |")
+                  continue
+                  
+              total_tests = 0
+              total_failures = 0
+              total_errors = 0
+              total_skipped = 0
+              total_time = 0.0
+              
+              try:
+                  for f in files:
+                      tree = ET.parse(f)
+                      root = tree.getroot()
+                      # Handle both testsuites and testsuite root
+                      suites = root.findall('.//testsuite')
+                      if not suites and root.tag == 'testsuite':
+                          suites = [root]
+                      
+                      for suite in suites:
+                          total_tests += int(suite.get('tests', 0))
+                          total_failures += int(suite.get('failures', 0))
+                          total_errors += int(suite.get('errors', 0))
+                          total_skipped += int(suite.get('skipped', 0))
+                          total_time += float(suite.get('time', 0))
+                  
+                  status_icon = "✅"
+                  if total_failures > 0 or total_errors > 0:
+                      status_icon = "❌"
+                      all_passed = False
+                  elif total_tests == 0:
+                       status_icon = "⚠️" # No tests run
+                  
+                  time_str = f"{total_time:.2f}s"
+                  summary_lines.append(f"| {status_icon} | {name} | {total_tests} | {time_str} |")
+                  
+              except Exception as e:
+                  summary_lines.append(f"| ⚠️ | {name} | Error parsing | - |")
+                  print(f"Error parsing {key}: {e}")
+
+          summary_lines.append("")
+          if all_passed:
+              summary_lines.append("> ✨ **All systems operational.** Ready to merge!")
+          else:
+              summary_lines.append("> 🚨 **Failures detected.** Please review the logs.")
+
+          with open("test_summary.md", "w", encoding="utf-8") as f:
+              f.write("\n".join(summary_lines))
+          EOF
+          
+          python3 generate_summary.py
+
+      - name: Post Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('test_summary.md', 'utf8');
+            
+            // Signature to identify our comment
+            const signature = '<!-- toon-py-test-summary -->';
+            const body = `${signature}\n${summary}`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c => c.body.includes(signature));
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+      - name: Publish Detailed Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
         with:
           files: test-results/**/*.xml
-          comment_mode: always
-          compare_to_earlier_commit: true
-          check_name: "Test Results"
-          comment_title: "🧪 Test Results"
+          comment_mode: off 
+          check_name: "Detailed Test Results"
 
   # Final status check - aggregates all test results
   test-status:
